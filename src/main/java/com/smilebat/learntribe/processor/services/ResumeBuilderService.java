@@ -23,6 +23,7 @@ import com.smilebat.learntribe.processor.converters.ResumeConverter;
 import com.smilebat.learntribe.processor.services.experiences.ExperienceService;
 import com.smilebat.learntribe.resume.ResumeBuilderRequest;
 import com.smilebat.learntribe.resume.response.ResumeBuilderResponse;
+import io.micrometer.core.instrument.util.StringUtils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,7 +34,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 /**
