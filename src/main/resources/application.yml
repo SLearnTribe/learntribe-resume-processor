@@ -1,7 +1,10 @@
 
 server:
-  port: 0
+  port: 8089
 spring:
+  multipart:
+    maxFileSize: 51200KB
+    maxRequestFile: 51200KB
   datasource:
     url: jdbc:postgresql://${domain}:5432/inquisitve
     password: password

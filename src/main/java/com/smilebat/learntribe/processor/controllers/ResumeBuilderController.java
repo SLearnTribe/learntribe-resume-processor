@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,21 +42,21 @@ public class ResumeBuilderController {
   private final ResumeBuilderService service;
 
   /**
-   * Evaluates resume sumarries.
+   * Evaluates resume summaries.
    *
    * @param keyCloakId the IAM id.
+   * @param pageNo the page number.
+   * @param pageSize the page size.
    * @return the {@link ResponseEntity}.
    */
   @GetMapping(value = "/build/about")
   @ResponseBody
-  @ApiOperation(
-      value = "Retrieves candidates skill and current role summaries",
-      notes = "Fetches all candidate skills summaries")
+  @ApiOperation(value = "Retrieves summaries based on skill and current role")
   @ApiResponses(
       value = {
         @ApiResponse(
             code = 200,
-            message = "Successfully retrieved",
+            message = "Success",
             response = String.class,
             responseContainer = "List"),
         @ApiResponse(code = 400, message = SCConstants.BAD_REQUEST),
@@ -65,8 +66,10 @@ public class ResumeBuilderController {
         @ApiResponse(code = 422, message = SCConstants.INVALID_DATA),
       })
   public ResponseEntity<?> evaluatePersonalSummaries(
-      @AuthenticationPrincipal(expression = SCConstants.SUBJECT) String keyCloakId) {
-    Collection<String> summaries = service.getPersonalSummaries(keyCloakId);
+      @AuthenticationPrincipal(expression = SCConstants.SUBJECT) String keyCloakId,
+      @RequestParam(value = "page") int pageNo,
+      @RequestParam(value = "limit") int pageSize) {
+    Collection<String> summaries = service.getPersonalSummaries(keyCloakId, pageNo);
     return ResponseEntity.status(HttpStatus.OK).body(summaries);
   }
 
@@ -74,6 +77,8 @@ public class ResumeBuilderController {
    * Evaluate Resume Summaries.
    *
    * @param keyCloakId the IAM user id.
+   * @param pageNo the page number.
+   * @param pageSize the page size.
    * @return the Collection of String.
    */
   @GetMapping(value = "/build/workexp")
@@ -93,8 +98,10 @@ public class ResumeBuilderController {
         @ApiResponse(code = 422, message = SCConstants.INVALID_DATA),
       })
   public ResponseEntity<?> evaluateWorkExpSummaries(
-      @AuthenticationPrincipal(expression = "subject") String keyCloakId) {
-    Collection<String> summaries = service.getWorkExpSummaries(keyCloakId);
+      @AuthenticationPrincipal(expression = "subject") String keyCloakId,
+      @RequestParam(value = "page") int pageNo,
+      @RequestParam(value = "limit") int pageSize) {
+    Collection<String> summaries = service.getWorkExpSummaries(keyCloakId, pageNo);
     return ResponseEntity.status(HttpStatus.OK).body(summaries);
   }
 

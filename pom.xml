@@ -52,6 +52,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.smilebat.learntribe</groupId>
+			<artifactId>learntribe-validator</artifactId>
+			<version>${commons.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.smilebat.learntribe</groupId>
 			<artifactId>learntribe-api</artifactId>
 			<version>${model.version}</version>
 		</dependency>
@@ -138,6 +143,14 @@
 					<target>9</target>
 				</configuration>
 			</plugin>
-		</plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+        </plugins>
 	</build>
 </project>

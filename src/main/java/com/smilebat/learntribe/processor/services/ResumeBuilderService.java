@@ -34,6 +34,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -155,10 +157,11 @@ public class ResumeBuilderService {
    * Retrieves Suggested Work Experiences for User.
    *
    * @param keyCloakId the IAM id.
+   * @param pageNum the page number.
    * @return the Collection of Summaries.
    */
   @Transactional
-  public Collection<String> getWorkExpSummaries(String keyCloakId) {
+  public Collection<String> getWorkExpSummaries(String keyCloakId, int pageNum) {
     Verify.verifyNotNull(keyCloakId, "IAM User id cannot be null");
     UserProfile profile = profileRepository.findByKeyCloakId(keyCloakId);
     if (profile == null) {
@@ -170,36 +173,54 @@ public class ResumeBuilderService {
             .stream()
             .map(WorkExperience::getDesignation)
             .collect(Collectors.toSet());
-    Set<ProfileSummary> profileSummaries = new HashSet<>();
+
+    int totalRoles = roles.size();
+    int requiredSummaryPerRole = 25 / totalRoles;
+    List<ProfileSummary> summaries = Collections.emptyList();
     for (String role : roles) {
-      profileSummaries.addAll(suggestSummaries(role, null));
+      if (summaries.size() >= 25) {
+        break;
+      }
+      Pageable pageable = PageRequest.of(pageNum, requiredSummaryPerRole);
+      List<ProfileSummary> roleSummaries = summaryRepository.findByRole(role, pageable);
+      summaries.addAll(roleSummaries);
     }
-    summaryRepository.saveAll(profileSummaries);
-    return converter.toResponse(profileSummaries);
+    return converter.toResponse(summaries);
   }
 
   /**
    * Retrieves/Predicts the personal summary of a user.
    *
    * @param keyCloakId the IAM id.
+   * @param pageNum the page number.
    * @return the {@link Collection} of String.
    */
   @Transactional
-  public Collection<String> getPersonalSummaries(String keyCloakId) {
+  public Collection<String> getPersonalSummaries(String keyCloakId, int pageNum) {
     Verify.verifyNotNull(keyCloakId, "IAM user id cannot be null");
-    UserProfile profile = profileRepository.findByKeyCloakId(keyCloakId);
-    if (profile == null) {
-      return Collections.emptyList();
-    }
-    String skills = profile.getSkills();
-    final String[] skillsArr = skills.split(",");
-    String userCurrentRole = profile.getCurrentDesignation();
-    Set<ProfileSummary> profileSummaries = new HashSet<>();
-    for (String skill : skillsArr) {
-      profileSummaries.addAll(suggestSummaries(userCurrentRole, skill));
-    }
-    summaryRepository.saveAll(profileSummaries);
-    return converter.toResponse(profileSummaries);
+    //    UserProfile profile = profileRepository.findByKeyCloakId(keyCloakId);
+    //    if (profile == null) {
+    //      return Collections.emptyList();
+    //    }
+    //    String skills = profile.getSkills();
+    //    final String[] skillsArr = skills.split(",");
+    //    String userCurrentRole = profile.getCurrentDesignation();
+    //    Set<ProfileSummary> profileSummaries = new HashSet<>();
+    //    int totalSkills = skillsArr.length;
+    //    int requiredSummaryPerSkill = 25 / totalSkills;
+    //    for (String skill : skillsArr) {
+    //      if (profileSummaries.size() >= 25) {
+    //        break;
+    //      }
+    //      Pageable pageable = PageRequest.of(pageNum, requiredSummaryPerSkill);
+    //      final List<ProfileSummary> skillSummaries =
+    //          summaryRepository.findByRoleAndSkill(userCurrentRole, skill, pageable);
+    //      profileSummaries.addAll(skillSummaries);
+    //    }
+
+    suggestSummaries("Software Enginner", "Java");
+    return Collections.emptyList();
+    // return converter.toResponse(profileSummaries);
   }
 
   private Set<ProfileSummary> suggestSummaries(String role, String skill) {
@@ -213,7 +234,7 @@ public class ResumeBuilderService {
     return summaries
         .stream()
         .filter(StringUtils::isNotEmpty)
-        .map(createProfileSummary(userCurrentRole, skill))
+        .map(summary -> createProfileSummary(userCurrentRole, skill, summary))
         .collect(Collectors.toSet());
   }
 
@@ -222,12 +243,16 @@ public class ResumeBuilderService {
    *
    * @param userCurrentRole the Current role of user
    * @param skill the skill of user.
+   * @param summary the summary of the profile.
    * @return the {@link Function}.
    */
-  private Function<String, ProfileSummary> createProfileSummary(
-      String userCurrentRole, String skill) {
-    return summary ->
-        ProfileSummary.builder().role(userCurrentRole).skill(skill).summary(summary).build();
+  private ProfileSummary createProfileSummary(
+      String userCurrentRole, String skill, String summary) {
+    ProfileSummary profileSummary = new ProfileSummary();
+    profileSummary.setRole(userCurrentRole);
+    profileSummary.setSkill(skill);
+    profileSummary.setSummary(summary);
+    return profileSummary;
   }
 
   /**
@@ -269,13 +294,18 @@ public class ResumeBuilderService {
    * @return Set of String.
    */
   private Set<String> parseCompletedText(String str) {
-    String[] arr = str.split("\n\n");
-    Set<String> summaries = new HashSet<>(15);
+    String[] arr = str.split("\n");
+    Set<String> summaries = new HashSet<>(3);
     int index = 1;
     int arrLen = arr.length;
     while (index < arrLen) {
-      String summary = arr[index++];
-      summaries.add(summary);
+      while (arr[index].isBlank()) {
+        index += 1;
+      }
+      String inputText = arr[index].trim();
+      inputText = inputText.replaceAll("[0-9]. ", "");
+      summaries.add(inputText);
+      index++;
     }
     return summaries;
   }
