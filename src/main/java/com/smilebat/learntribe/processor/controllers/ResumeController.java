@@ -2,6 +2,7 @@ package com.smilebat.learntribe.processor.controllers;
 
 import com.smilebat.learntribe.dataaccess.jpa.entity.FileDB;
 import com.smilebat.learntribe.processor.services.FileStorageService;
+import io.micrometer.core.instrument.util.StringUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -43,6 +44,7 @@ public class ResumeController {
    * Downloads User Resumes.
    *
    * @param keyCloakId the IAM id.
+   * @param email the email
    * @return the {@link ResponseEntity}.
    */
   @GetMapping(value = "/download")
@@ -61,9 +63,12 @@ public class ResumeController {
       })
   @ApiOperation(value = "Downloads User Resumes", notes = "Download")
   public ResponseEntity<Resource> fetchResume(
-      @AuthenticationPrincipal(expression = SCConstants.SUBJECT) String keyCloakId) {
-
-    final FileDB file = storageService.getFile(keyCloakId);
+      @AuthenticationPrincipal(expression = SCConstants.SUBJECT) String keyCloakId,
+      @RequestParam(required = false, value = "email") String email) {
+    FileDB file =
+        StringUtils.isEmpty(email)
+            ? storageService.getFile(keyCloakId)
+            : storageService.getFileByEmail(email);
     ByteArrayResource resource = new ByteArrayResource(file.getData());
     return ResponseEntity.ok()
         .contentLength(file.getSize())
@@ -75,7 +80,8 @@ public class ResumeController {
    * Uploads User Resumes.
    *
    * @param keyCloakId the IAM id.
-   * @param file the file to be uploaded
+   * @param file the file to be uploaded.
+   * @param email the email.
    * @return the {@link ResponseEntity}.
    */
   @PostMapping(value = "/upload")
@@ -95,11 +101,12 @@ public class ResumeController {
       })
   public ResponseEntity<?> uploadResume(
       @AuthenticationPrincipal(expression = SCConstants.SUBJECT) String keyCloakId,
+      @RequestParam(required = true, value = "email") String email,
       @RequestParam("file") MultipartFile file) {
 
     String message = "";
     try {
-      storageService.store(keyCloakId, file);
+      storageService.store(keyCloakId, email, file);
       message = "Uploaded the file successfully: " + file.getOriginalFilename();
       return ResponseEntity.status(HttpStatus.OK).body(message);
     } catch (Exception e) {

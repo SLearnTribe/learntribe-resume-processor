@@ -8,6 +8,7 @@ import com.smilebat.learntribe.processor.services.experiences.strategy.Education
 import com.smilebat.learntribe.processor.services.experiences.strategy.SideProjectStrategy;
 import com.smilebat.learntribe.processor.services.experiences.strategy.WorkExperienceStartegy;
 import com.smilebat.learntribe.resume.ResumeBuilderRequest;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +39,7 @@ public class ExperienceService {
    * @param request the {@link ResumeBuilderRequest}
    * @param profile the {@link Resume}
    */
+  @Transactional
   public void saveAllExperiences(ResumeBuilderRequest request, Resume profile) {
     saveWorkExperiences(request, profile);
     saveEducationExperiences(request, profile);

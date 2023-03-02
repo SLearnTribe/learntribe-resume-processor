@@ -69,8 +69,8 @@ public class ResumeBuilderController {
       @AuthenticationPrincipal(expression = SCConstants.SUBJECT) String keyCloakId,
       @RequestParam(value = "page") int pageNo,
       @RequestParam(value = "limit") int pageSize) {
-    Collection<String> summaries = service.getPersonalSummaries(keyCloakId, pageNo);
-    return ResponseEntity.status(HttpStatus.OK).body(summaries);
+    // Collection<String> summaries = service.getPersonalSummaries(keyCloakId, pageNo);
+    return ResponseEntity.status(HttpStatus.OK).build();
   }
 
   /**
