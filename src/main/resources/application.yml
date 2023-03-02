@@ -1,6 +1,6 @@
 
 server:
-  port: 8089
+  port: 0
 spring:
   multipart:
     maxFileSize: 51200KB
@@ -52,6 +52,6 @@ logging:
 
 #domain: www.smilebat.xyz
 
-domain: host.docker.internal
+domain: localhost
 
 

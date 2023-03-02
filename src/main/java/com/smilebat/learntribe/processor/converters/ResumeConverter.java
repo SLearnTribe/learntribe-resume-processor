@@ -72,6 +72,7 @@ public class ResumeConverter {
    */
   public ResumeBuilderResponse toResponse(Resume profile) {
     ResumeBuilderResponse response = new ResumeBuilderResponse();
+    response.setId(profile.getId());
     response.setAbout(profile.getAbout());
     response.setCountry(profile.getCountry());
     response.setEmail(profile.getEmail());
