@@ -38,7 +38,7 @@ spring:
 feign:
   client:
     url:
-      keycloak: http://${domain}:8085/auth
+      keycloak: http://${domain}
     config:
       default:
         loggerLevel: full
@@ -50,8 +50,8 @@ logging:
           learntribeclients: DEBUG
 
 
-#domain: www.smilebat.xyz
+domain: www.smilebat.xyz
 
-domain: localhost
+#domain: localhost:8085/auth
 
 
