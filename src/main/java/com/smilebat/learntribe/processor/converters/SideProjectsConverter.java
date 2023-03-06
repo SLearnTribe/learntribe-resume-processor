@@ -39,10 +39,10 @@ public class SideProjectsConverter {
     sideProject.setSkills(request.getSkills());
     String startDate = request.getStartDate();
     String endDate = request.getEndDate();
-    if (startDate != null) {
+    if (startDate != null && !startDate.isBlank()) {
       sideProject.setStartDate(commons.toInstant(startDate));
     }
-    if (endDate != null) {
+    if (endDate != null && !startDate.isBlank()) {
       sideProject.setEndDate(commons.toInstant(endDate));
     }
     return sideProject;
