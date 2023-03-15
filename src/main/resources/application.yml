@@ -1,6 +1,10 @@
 
 server:
   port: 0
+  ssl:
+    key-store-password: changeit
+    key-store: classes/security.p12
+    key-store-type: PKCS12
 spring:
   multipart:
     maxFileSize: 51200KB
@@ -26,6 +30,7 @@ spring:
               root: /data/index/default
     show-sql: true
   security:
+    require-ssl: true
     oauth2:
       resourceserver:
         jwt:
