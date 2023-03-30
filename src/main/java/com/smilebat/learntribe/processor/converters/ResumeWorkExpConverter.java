@@ -49,6 +49,7 @@ public class ResumeWorkExpConverter {
     workExperience.setYears(request.getYears());
     workExperience.setLocation(request.getLocation());
     workExperience.setDescription(request.getDescription());
+    workExperience.setCurrentlyWorkingHere(request.getCurrentlyWorkingHere());
     return workExperience;
   }
 
@@ -84,6 +85,7 @@ public class ResumeWorkExpConverter {
     response.setYears(workExperience.getYears());
     response.setOrgName(workExperience.getOrgName());
     response.setDescription(workExperience.getDescription());
+    response.setCurrentlyWorkingHere(workExperience.getCurrentlyWorkingHere());
     return response;
   }
 
